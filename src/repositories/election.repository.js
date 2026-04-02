@@ -8,8 +8,16 @@ class ElectionRepository {
                 description: data.description,
                 startDate: new Date(data.startDate),
                 endDate: new Date(data.endDate),
-                isActive: true
-            }
+                isActive: true,
+                candidates: {
+                    create: data.candidates.map(candidate => ({
+                        name: candidate.name,
+                        vision: candidate.vision,
+                        mission: candidate.mission,
+                    }))
+                }
+            },
+            include: { candidates: true }
         });
     }
 
@@ -22,7 +30,25 @@ class ElectionRepository {
     async findById(id) {
         return await prisma.election.findUnique({
             where: { id: parseInt(id) },
-            include: { candidates: true }
+            include: { 
+                candidates: {
+                    include: {
+                        _count: {
+                            select: { votes: true }
+                        }
+                    }
+                },
+                votes: {
+                    include: {
+                        voter: true,
+                        candidate: true
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
+                    },
+                    take: 10
+                }
+            }
         });
     }
 }
