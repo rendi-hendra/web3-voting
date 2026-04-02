@@ -26,6 +26,22 @@ app.get('/', (req, res) => {
 
 app.use('/api/elections', electionRoutes);
 
+// Web3 Integration
+const { votingContract } = require('./src/infrastructure/ethers');
+
+if (votingContract) {
+  votingContract.on("VoteCast", (voter, candidateId, electionId, event) => {
+    console.log(`\n[Web3 Event] VoteCast detected!`);
+    console.log(`- Voter: ${voter}`);
+    console.log(`- Candidate ID: ${candidateId.toString()}`);
+    console.log(`- Election ID: ${electionId.toString()}`);
+    console.log(`- TxHash: ${event.log.transactionHash}`);
+    // Here you would typically dispatch a UseCase to update the local database with the TxHash
+  });
+} else {
+  console.log("[Web3] Contract not loaded. Event listeners disabled.");
+}
+
 // Socket.io Connection
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
