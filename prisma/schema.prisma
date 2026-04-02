@@ -10,7 +10,9 @@ datasource db {
 model Voter {
   id            Int      @id @default(autoincrement())
   name          String
-  walletAddress String   @unique
+  email         String?  @unique
+  password      String?
+  walletAddress String?  @unique
   isVerified    Boolean  @default(false)
   createdAt     DateTime @default(now())
   votes         Vote[]
